@@ -1,3 +1,5 @@
+import pygame
+
 class ShooterActor(renpy.Displayable):
     """Base class for Shooter objects.
     """
@@ -38,8 +40,8 @@ class ShooterPlayer(ShooterActor):
                 self.bullets.remove(item)
 
         # If there are less than the max number of bullets allowed, add a new bullet
-        if len(self.bullets) < 5:
-            self.bullets.append(ShooterBullet(start=(self.x, self.y)))
+        if len(self.bullets) < (self.max_bullets - 1):
+            self.bullets.append(ShooterBullet(start=(self.x, self.y), speed=(0, 300)))
 
     def move_player(self):
         keys = pygame.key.get_pressed()
@@ -100,3 +102,53 @@ class ShooterPlayer(ShooterActor):
         elif ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_SPACE:
                 self.generate_bullets()
+                
+
+class ShooterBullet(renpy.Displayable):
+    def __init__(self, displayable, speed=(0, 0), start=(0, 0), *args, **kwargs):
+        super(ShooterBullet, self).__init__(**kwargs)
+
+        self.old_st = None
+
+        self.displayable = displayable or Solid("#ff33ee", xsize=10, ysize=10)
+
+        self.speed_x = speed[0]
+        self.speed_y = speed[1]
+
+        self.start_x = start[0]
+        self.start_y = start[1]
+
+        self.x = start[0]
+        self.y = start[1]            
+
+        self.alive = True
+
+    def render(self, width, height, st, at):
+        render = renpy.Render(width, height)
+
+        # Figure out the time elapsed since the previous frame.
+        if self.old_st is None:
+            self.old_st = st
+
+        dtime = st - self.old_st
+        self.old_st = st
+
+        speed_x = dtime * self.speed_x
+        speed_y = dtime * self.speed_y
+
+        old_x = self.x          
+        old_y = self.y
+
+        self.x -= speed_x
+        self.y -= speed_y
+
+        d = renpy.render(self.displayable, width, height, st, at)
+
+        renpy.redraw(self, 0)
+        render.blit(d, (self.x, self.y))
+
+        # Kill bullets when they leave the screen
+        if self.y < 0:
+            self.alive = False
+
+        return render
