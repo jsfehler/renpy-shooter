@@ -152,3 +152,57 @@ class ShooterBullet(renpy.Displayable):
             self.alive = False
 
         return render
+
+class EnemyShooterActor(ShooterActor):
+    def __init__(self, *args, **kwargs):
+        super(EnemyShooterActor, self).__init__(**kwargs)
+
+        self.wave = 1
+
+    def render(self, width, height, st, at):
+        render = renpy.Render(width, height)
+
+        # Figure out the time elapsed since the previous frame.
+        if self.old_st is None:
+            self.old_st = st
+
+        dtime = st - self.old_st
+        self.old_st = st
+
+        self.wave -= dtime
+
+        if self.wave <= 1:
+            #foo = renpy.random.choice([-150, 150])
+            foo = 150
+            #self.wave = 1
+        if self.wave <= 0:
+            foo = -150
+        if self.wave <= -1:
+            self.wave = 1
+            foo = 0            
+
+
+        speed_x = dtime * (self.speed_x + foo)
+        speed_y = dtime * self.speed_y
+
+        old_x = self.x          
+        old_y = self.y
+
+        self.x += speed_x
+        self.y += speed_y
+
+        d = renpy.render(self.displayable, width, height, st, at)
+
+        renpy.redraw(self, 0)
+        render.blit(d, (self.x, self.y))
+
+        return render
+
+
+class EnemyGroup(object):
+    def __init__(self, start=(0, 0), enemies=None):
+        for enemy in enemies:
+            enemy.x += start[0]
+            enemy.y += start[1]
+
+        self.enemies = enemies
