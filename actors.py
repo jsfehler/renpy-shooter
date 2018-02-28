@@ -3,7 +3,7 @@ import pygame
 class ShooterActor(renpy.Displayable):
     """Base class for Shooter objects.
     """
-    def __init__(self, displayable, speed=(0, 0), start=(0, 0), *args, **kwargs):
+    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0), *args, **kwargs):
         super(ShooterActor, self).__init__(**kwargs)
 
         # Stores the old value of the st value from render()
@@ -12,16 +12,19 @@ class ShooterActor(renpy.Displayable):
         # Default displayable if none is provided.
         self.displayable = displayable or Solid("#ffffff", xsize=20, ysize=20)
 
-        self.speed_x = speed[0]
-        self.speed_y = speed[1]
+        self.speed_x = 0
+        self.speed_y = 0
+        
+        self.max_speed_x = speed[0]
+        self.max_speed_y = speed[1]
 
         self.x = start[0]
         self.y = start[1]
 
 
 class ShooterPlayer(ShooterActor):
-    def __init__(self, displayable, speed=(0, 0), start=(0, 0), *args, **kwargs):
-        super(ShooterPlayer, self).__init__(**kwargs)    
+    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0), *args, **kwargs):
+        super(ShooterPlayer, self).__init__(displayable, speed, start, **kwargs)    
 
         self.bullets = []
         self.max_bullets = 6
@@ -47,14 +50,14 @@ class ShooterPlayer(ShooterActor):
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_LEFT]:
-            self.speed_x = -self.max_speed
+            self.speed_x = -self.max_speed_x
         elif keys[pygame.K_RIGHT]:
-            self.speed_x = self.max_speed
+            self.speed_x = self.max_speed_x
 
         if keys[pygame.K_UP]:
-            self.speed_y = -self.max_speed
+            self.speed_y = -self.max_speed_y
         elif keys[pygame.K_DOWN]:
-            self.speed_y = self.max_speed
+            self.speed_y = self.max_speed_y
 
     def render(self, width, height, st, at):
         render = renpy.Render(width, height)
@@ -80,7 +83,7 @@ class ShooterPlayer(ShooterActor):
         d = renpy.render(self.displayable, width, height, st, at)
 
         for bullet in self.bullets:
-            b = renpy.render(item, width, height, st, at)
+            b = renpy.render(bullet, width, height, st, at)
             render.blit(b, (0, 0))
 
         renpy.redraw(self, 0)
@@ -105,7 +108,7 @@ class ShooterPlayer(ShooterActor):
                 
 
 class ShooterBullet(renpy.Displayable):
-    def __init__(self, displayable, speed=(0, 0), start=(0, 0), *args, **kwargs):
+    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0), *args, **kwargs):
         super(ShooterBullet, self).__init__(**kwargs)
 
         self.old_st = None
@@ -182,8 +185,8 @@ class EnemyShooterActor(ShooterActor):
             foo = 0            
 
 
-        speed_x = dtime * (self.speed_x + foo)
-        speed_y = dtime * self.speed_y
+        speed_x = dtime * (self.max_speed_x + foo)
+        speed_y = dtime * self.max_speed_y
 
         old_x = self.x          
         old_y = self.y
