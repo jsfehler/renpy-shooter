@@ -22,6 +22,9 @@ class ShooterActor(renpy.Displayable):
         self.displayable = displayable or Solid(
             self.solid_colour, **self.solid_kwargs)
 
+        self.width = self.solid_kwargs["xsize"]
+        self.height = self.solid_kwargs["ysize"]
+
         self.speed_x = 0
         self.speed_y = 0
 
@@ -44,7 +47,12 @@ class ShooterPlayer(ShooterActor):
         self.enemies = []
 
     def check_overlap(self):
-        pass
+        for bullet in self.bullets:
+            for enemy in self.enemies:
+                # enemy_side = enemy.x + enemy.width
+                enemy_bottom = enemy.y + enemy.height
+                if (bullet.y >= enemy.y) and (bullet.y <= enemy_bottom):
+                    enemy.kill()
 
     def generate_bullets(self):
         # TODO: Don't create new bullet objects, recycle the existing ones.
@@ -82,6 +90,8 @@ class ShooterPlayer(ShooterActor):
         dtime = st - self.old_st
         self.old_st = st
 
+        self.check_overlap()
+
         self.move_player()
 
         speed_x = dtime * self.speed_x
@@ -116,16 +126,16 @@ class ShooterPlayer(ShooterActor):
                 self.generate_bullets()
 
 
-class ShooterBullet(renpy.Displayable):
+class ShooterBullet(ShooterActor):
 
     solid_colour = "#ff33ee"
     solid_kwargs = {
-        "xsize": 20,
-        "ysize": 20
+        "xsize": 10,
+        "ysize": 10
     }
 
     def __init__(self, displayable=None, speed=(0, 0), start=(0, 0), *args, **kwargs):
-        super(ShooterBullet, self).__init__(*args, **kwargs)
+        super(ShooterBullet, self).__init__(displayable, speed, start, *args, **kwargs)
 
         self.alive = True
 
@@ -139,8 +149,8 @@ class ShooterBullet(renpy.Displayable):
         dtime = st - self.old_st
         self.old_st = st
 
-        speed_x = dtime * self.speed_x
-        speed_y = dtime * self.speed_y
+        speed_x = dtime * self.max_speed_x
+        speed_y = dtime * self.max_speed_y
 
         self.x -= speed_x
         self.y -= speed_y
@@ -162,39 +172,44 @@ class EnemyShooterActor(ShooterActor):
         super(EnemyShooterActor, self).__init__(**kwargs)
 
         self.wave = 1
+        self.alive = True
+
+    def kill(self):
+        self.alive = False
 
     def render(self, width, height, st, at):
         render = renpy.Render(width, height)
 
-        # Figure out the time elapsed since the previous frame.
-        if self.old_st is None:
+        if self.alive:
+            # Figure out the time elapsed since the previous frame.
+            if self.old_st is None:
+                self.old_st = st
+
+            dtime = st - self.old_st
             self.old_st = st
 
-        dtime = st - self.old_st
-        self.old_st = st
+            self.wave -= dtime
 
-        self.wave -= dtime
+            if self.wave <= 1:
+                #foo = renpy.random.choice([-150, 150])
+                foo = 150
+                #self.wave = 1
+            if self.wave <= 0:
+                foo = -150
+            if self.wave <= -1:
+                self.wave = 1
+                foo = 0
 
-        if self.wave <= 1:
-            #foo = renpy.random.choice([-150, 150])
-            foo = 150
-            #self.wave = 1
-        if self.wave <= 0:
-            foo = -150
-        if self.wave <= -1:
-            self.wave = 1
-            foo = 0
+            speed_x = dtime * (self.max_speed_x + foo)
+            speed_y = dtime * self.max_speed_y
 
-        speed_x = dtime * (self.max_speed_x + foo)
-        speed_y = dtime * self.max_speed_y
+            self.x += speed_x
+            self.y += speed_y
 
-        self.x += speed_x
-        self.y += speed_y
+            d = renpy.render(self.displayable, width, height, st, at)
 
-        d = renpy.render(self.displayable, width, height, st, at)
-
-        renpy.redraw(self, 0)
-        render.blit(d, (self.x, self.y))
+            renpy.redraw(self, 0)
+            render.blit(d, (self.x, self.y))
 
         return render
 

@@ -12,4 +12,5 @@ screen shooter_main():
         add enemy
 
 label start:
+    $ actor.enemies = [enemy1, enemy2]
     call screen shooter_main
