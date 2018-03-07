@@ -1,3 +1,4 @@
+import copy
 import pygame
 import renpy.exports as renpy
 
@@ -68,32 +69,18 @@ class ShooterPlayer(ShooterActor):
         super(ShooterPlayer, self).__init__(
             displayable, speed, start, *args, **kwargs)
 
-        self.bullets = []
-        self.max_bullets = 6
-
+        self.weapon = ShooterWeapon()
+ 
         self.enemies = []
 
     def check_overlap(self):
         for enemy in self.enemies:
-            for bullet in self.bullets:
+            for bullet in self.weapon.bullets:
                 if bullet.overlaps_with(enemy):
                     enemy.kill()
 
             if self.overlaps_with(enemy):
                 pass
-
-    def generate_bullets(self):
-        # TODO: Don't create new bullet objects, recycle the existing ones.
-
-        # If a bullet is dead, remove it from the list
-        for item in self.bullets:
-            if not item.alive:
-                self.bullets.remove(item)
-
-        # If less than the max number of bullets allowed, add a new bullet
-        if len(self.bullets) < (self.max_bullets - 1):
-            new_bullet = ShooterBullet(start=(self.x, self.y), speed=(0, 300))
-            self.bullets.append(new_bullet)
 
     def move_player(self):
         keys = pygame.key.get_pressed()
@@ -151,8 +138,32 @@ class ShooterPlayer(ShooterActor):
 
         elif ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_SPACE:
-                self.generate_bullets()
+                self.weapon.generate_bullets()
 
+         
+class ShooterWeapon(ShooterActor):
+    def __init__(self, bullet=None, speed=(0, 0), start=(0, 0),
+                 *args, **kwargs):
+        super(ShooterWeapon, self).__init__(
+            displayable, speed, start, *args, **kwargs)
+
+        self.bullet = ShooterBullet(start=(self.x, self.y), speed=(0, 300))
+        self.bullets = []
+        self.max_bullets = 6
+
+    def generate_bullets(self):
+        # TODO: Don't create new bullet objects, recycle the existing ones.
+
+        # If a bullet is dead, remove it from the list
+        for item in self.bullets:
+            if not item.alive:
+                self.bullets.remove(item)
+
+        # If less than the max number of bullets allowed, add a new bullet
+        if len(self.bullets) < (self.max_bullets - 1):
+            new_bullet = copy.deepcopy(self.bullet)
+            self.bullets.append(new_bullet)         
+            
 
 class ShooterBullet(ShooterActor):
 
