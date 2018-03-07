@@ -34,6 +34,28 @@ class ShooterActor(renpy.Displayable):
         self.x = start[0]
         self.y = start[1]
 
+    def overlaps_with(self, other):
+        """Check if this object overlaps with another one."""
+        left = other.x
+        right = other.x + other.width
+        top = other.y
+        bottom = other.y + other.height
+
+        # left
+        if (self.x <= right) and (self.x >= left):
+            return True
+        # Right
+        if (self.x >= left) and (self.x <= right):
+            return True
+        # Top
+        if (self.y <= bottom) and (self.y >= top):
+            return True
+        # Bottom
+        if (self.y >= top) and (self.y <= bottom):
+            return True
+
+        return False
+
 
 class ShooterPlayer(ShooterActor):
     def __init__(self, displayable=None, speed=(0, 0), start=(0, 0),
@@ -47,12 +69,13 @@ class ShooterPlayer(ShooterActor):
         self.enemies = []
 
     def check_overlap(self):
-        for bullet in self.bullets:
-            for enemy in self.enemies:
-                # enemy_side = enemy.x + enemy.width
-                enemy_bottom = enemy.y + enemy.height
-                if (bullet.y >= enemy.y) and (bullet.y <= enemy_bottom):
+        for enemy in self.enemies:
+            for bullet in self.bullets:
+                if bullet.overlaps_with(enemy):
                     enemy.kill()
+
+            if self.overlaps_with(enemy):
+                pass
 
     def generate_bullets(self):
         # TODO: Don't create new bullet objects, recycle the existing ones.
@@ -134,8 +157,10 @@ class ShooterBullet(ShooterActor):
         "ysize": 10
     }
 
-    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0), *args, **kwargs):
-        super(ShooterBullet, self).__init__(displayable, speed, start, *args, **kwargs)
+    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0),
+                 *args, **kwargs):
+        super(ShooterBullet, self).__init__(
+            displayable, speed, start, *args, **kwargs)
 
         self.alive = True
 
