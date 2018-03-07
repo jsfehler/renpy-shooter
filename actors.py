@@ -41,19 +41,24 @@ class ShooterActor(renpy.Displayable):
         top = other.y
         bottom = other.y + other.height
 
+        horizontal_hit = False
+        vertical_hit = False
+
         # left
         if (self.x <= right) and (self.x >= left):
-            return True
+            horizontal_hit = True
         # Right
         if (self.x >= left) and (self.x <= right):
-            return True
+            horizontal_hit = True
         # Top
         if (self.y <= bottom) and (self.y >= top):
-            return True
+            vertical_hit = True
         # Bottom
         if (self.y >= top) and (self.y <= bottom):
-            return True
+            vertical_hit = True
 
+        if horizontal_hit and vertical_hit:
+            return True
         return False
 
 
