@@ -36,18 +36,35 @@ class ShooterActor(renpy.Displayable):
         self.y = start[1]
 
     def overlaps_with(self, other):
-        """Check if this object overlaps with another one."""
-        left = other.x
-        right = other.x + other.width
-        top = other.y
-        bottom = other.y + other.height
+        """Check if this object's rectangle overlaps with another one."""
+
+        left = self.x
+        right = self.x + self.width
+        top = self.y
+        bottom = self.y + self.height
+
+        other_left = other.x
+        other_right = other.x + other.width
+        other_top = other.y
+        other_bottom = other.y + other.height
 
         horizontal_hit = False
         vertical_hit = False
 
-        if (self.x >= left) and (self.x <= right):
+        # Left side of self hits other
+        if (left >= other_left) and (left <= other_right):
             horizontal_hit = True
-        if (self.y >= top) and (self.y <= bottom):
+
+        # Right side of self hits other
+        if (right >= other_left) and (right <= other_right):
+            horizontal_hit = True
+
+        # Top side of self hits other
+        if (top >= other_top) and (top <= other_bottom):
+            vertical_hit = True
+
+        # Bottom side of self hits other
+        if (bottom >= other_top) and (bottom <= other_bottom):
             vertical_hit = True
 
         if horizontal_hit and vertical_hit:
