@@ -1,4 +1,5 @@
-default actor = ShooterPlayer(start=(400, 400), speed=(300, 300))
+default standard_bullet = ShooterBullet(speed=(0, 300))
+default actor = ShooterPlayer(bullet=standard_bullet, start=(400, 400), speed=(300, 300))
 
 default enemy1 = EnemyShooterActor(speed=(0, 150), start=(0, 0))
 default enemy2 = EnemyShooterActor(speed=(0, 150), start=(0, -50))

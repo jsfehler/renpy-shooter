@@ -64,13 +64,12 @@ class ShooterActor(renpy.Displayable):
 
 
 class ShooterPlayer(ShooterActor):
-    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0),
-                 *args, **kwargs):
+    def __init__(self, displayable=None, bullet=None, speed=(0, 0),
+                 start=(0, 0), *args, **kwargs):
         super(ShooterPlayer, self).__init__(
             displayable, speed, start, *args, **kwargs)
 
-        self.weapon = ShooterWeapon()
- 
+        self.weapon = ShooterWeapon(self, bullet=bullet)
         self.enemies = []
 
     def check_overlap(self):
@@ -117,17 +116,14 @@ class ShooterPlayer(ShooterActor):
 
         d = renpy.render(self.displayable, width, height, st, at)
 
-        for bullet in self.bullets:
+        # Drawing bullets in ShooterPlayer's render so they
+        # implicitly get added to the screen
+        for bullet in self.weapon.bullets:
             b = renpy.render(bullet, width, height, st, at)
             render.blit(b, (0, 0))
 
         renpy.redraw(self, 0)
         render.blit(d, (self.x, self.y))
-
-        # DEBUG
-        t = Text(str(actor.x) + ':' + str(actor.y))
-        debug_render = renpy.render(t, width, height, st, at)
-        render.blit(debug_render, (0, 0))
 
         return render
 
@@ -140,14 +136,12 @@ class ShooterPlayer(ShooterActor):
             if ev.key == pygame.K_SPACE:
                 self.weapon.generate_bullets()
 
-         
-class ShooterWeapon(ShooterActor):
-    def __init__(self, bullet=None, speed=(0, 0), start=(0, 0),
-                 *args, **kwargs):
-        super(ShooterWeapon, self).__init__(
-            displayable, speed, start, *args, **kwargs)
 
-        self.bullet = ShooterBullet(start=(self.x, self.y), speed=(0, 300))
+class ShooterWeapon(store.object):
+    def __init__(self, player, bullet=None, *args, **kwargs):
+        self.player = player
+        self.bullet = bullet
+
         self.bullets = []
         self.max_bullets = 6
 
@@ -161,9 +155,10 @@ class ShooterWeapon(ShooterActor):
 
         # If less than the max number of bullets allowed, add a new bullet
         if len(self.bullets) < (self.max_bullets - 1):
-            new_bullet = copy.deepcopy(self.bullet)
-            self.bullets.append(new_bullet)         
-            
+            self.bullet.x = self.player.x
+            self.bullet.y = self.player.y
+            self.bullets.append(copy.deepcopy(self.bullet))
+
 
 class ShooterBullet(ShooterActor):
 
@@ -173,10 +168,9 @@ class ShooterBullet(ShooterActor):
         "ysize": 10
     }
 
-    def __init__(self, displayable=None, speed=(0, 0), start=(0, 0),
-                 *args, **kwargs):
+    def __init__(self, displayable=None, speed=(0, 0), *args, **kwargs):
         super(ShooterBullet, self).__init__(
-            displayable, speed, start, *args, **kwargs)
+            displayable, speed, *args, **kwargs)
 
         self.alive = True
 
