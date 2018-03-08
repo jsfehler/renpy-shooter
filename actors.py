@@ -204,7 +204,9 @@ class ShooterBullet(ShooterActor):
         render.blit(d, (self.x, self.y))
 
         # Kill bullets when they leave the screen
-        if self.y < 0:
+        if (self.x < 0) or (self.x > config.screen_width):
+            self.alive = False
+        if (self.y < 0) or (self.y > config.screen_height):
             self.alive = False
 
         return render
