@@ -45,16 +45,8 @@ class ShooterActor(renpy.Displayable):
         horizontal_hit = False
         vertical_hit = False
 
-        # left
-        if (self.x <= right) and (self.x >= left):
-            horizontal_hit = True
-        # Right
         if (self.x >= left) and (self.x <= right):
             horizontal_hit = True
-        # Top
-        if (self.y <= bottom) and (self.y >= top):
-            vertical_hit = True
-        # Bottom
         if (self.y >= top) and (self.y <= bottom):
             vertical_hit = True
 
@@ -161,7 +153,6 @@ class ShooterWeapon(store.object):
 
 
 class ShooterBullet(ShooterActor):
-
     solid_colour = "#ff33ee"
     solid_kwargs = {
         "xsize": 10,
@@ -187,7 +178,7 @@ class ShooterBullet(ShooterActor):
         speed_x = dtime * self.max_speed_x
         speed_y = dtime * self.max_speed_y
 
-        self.x -= speed_x
+        self.x += speed_x
         self.y -= speed_y
 
         d = renpy.render(self.displayable, width, height, st, at)
