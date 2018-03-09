@@ -71,6 +71,15 @@ class ShooterActor(renpy.Displayable):
             return True
         return False
 
+    def inside_bounds(self):
+        """Check if Actor is in the screen bounds."""
+        if (self.x < 0) or (self.x > config.screen_width):
+            return False
+        elif (self.y < 0) or (self.y > config.screen_height):
+            return False
+
+        return True
+
 
 class ShooterPlayer(ShooterActor):
     def __init__(self, displayable=None, bullet=None, speed=(0, 0),
@@ -204,10 +213,7 @@ class ShooterBullet(ShooterActor):
         render.blit(d, (self.x, self.y))
 
         # Kill bullets when they leave the screen
-        if (self.x < 0) or (self.x > config.screen_width):
-            self.alive = False
-        if (self.y < 0) or (self.y > config.screen_height):
-            self.alive = False
+        self.alive = self.inside_bounds()
 
         return render
 
@@ -255,6 +261,9 @@ class EnemyShooterActor(ShooterActor):
 
             renpy.redraw(self, 0)
             render.blit(d, (self.x, self.y))
+
+            # Kill enemies when they leave the screen
+            self.alive = self.inside_bounds()
 
         return render
 
