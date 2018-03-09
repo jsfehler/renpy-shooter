@@ -35,6 +35,8 @@ class ShooterActor(renpy.Displayable):
         self.x = start[0]
         self.y = start[1]
 
+        self.alive = True
+
     def overlaps_with(self, other):
         """Check if this object's rectangle overlaps with another one."""
 
@@ -94,10 +96,10 @@ class ShooterPlayer(ShooterActor):
         for enemy in self.enemies:
             for bullet in self.weapon.bullets:
                 if bullet.overlaps_with(enemy):
-                    enemy.kill()
+                    enemy.alive = False
 
             if self.overlaps_with(enemy):
-                pass
+                self.alive = False
 
     def move_player(self):
         keys = pygame.key.get_pressed()
@@ -224,9 +226,6 @@ class EnemyShooterActor(ShooterActor):
 
         self.wave = 1
         self.alive = True
-
-    def kill(self):
-        self.alive = False
 
     def render(self, width, height, st, at):
         render = renpy.Render(width, height)
