@@ -51,12 +51,21 @@ class EnemyShooterActor(ShooterActor):
             # Kill enemies when they leave the screen
             self.alive = self.inside_bounds()
 
+        # Regenerate enemies at their original position
+        if not self.alive:
+            self.x = self.start_x
+            self.y = self.start_y
+            self.alive = True
+
         return render
 
 
 class EnemyGroup(object):
     def __init__(self, start=(0, 0), enemies=None):
         for enemy in enemies:
+            enemy.start_x += start[0]
+            enemy.start_y += start[1]
+
             enemy.x += start[0]
             enemy.y += start[1]
 

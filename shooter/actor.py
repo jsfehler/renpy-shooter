@@ -16,6 +16,9 @@ class ShooterActor(renpy.Displayable):
         self.max_speed_x = speed[0]
         self.max_speed_y = speed[1]
 
+        self.start_x = start[0]
+        self.start_y = start[1]
+
         self.x = start[0]
         self.y = start[1]
 
