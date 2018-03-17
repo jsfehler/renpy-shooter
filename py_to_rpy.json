@@ -1,0 +1,9 @@
+{
+    "ignore": [],
+	"remove": [
+        "import renpy.exports as renpy",
+        "from renpy.",
+        "from .actor import ShooterActor",
+        "from .weapon import ShooterWeapon"
+	]
+}
