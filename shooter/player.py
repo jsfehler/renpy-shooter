@@ -84,3 +84,8 @@ class ShooterPlayer(ShooterActor):
         elif ev.type == pygame.KEYDOWN:
             if ev.key == pygame.K_SPACE:
                 self.weapon.generate_bullets()
+
+        if not self.alive:
+            return False
+        else:
+            raise renpy.IgnoreEvent()

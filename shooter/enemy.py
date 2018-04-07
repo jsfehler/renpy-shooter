@@ -20,19 +20,20 @@ class EnemyShooterActor(ShooterActor):
             dtime = st - self.old_st
             self.old_st = st
 
+            # Create number that keeps getting lower.
+            # Use this value to make the enemy move in a wave motion.
             self.wave -= dtime
 
             if self.wave <= 1:
-                #foo = renpy.random.choice([-150, 150])
-                foo = 150
+                skew = 150
             if self.wave <= 0:
-                foo = -150
+                skew = -150
             if self.wave <= -1:
                 self.wave = 1
-                foo = 0
+                skew = 0
 
-            speed_x = dtime * (self.max_speed_x + foo)
-            speed_y = dtime * self.max_speed_y
+            speed_x = dtime * self.max_speed_x
+            speed_y = dtime * (self.max_speed_y + skew)
 
             self.x += speed_x
             self.y += speed_y
@@ -45,9 +46,6 @@ class EnemyShooterActor(ShooterActor):
                 at
             )
 
-            renpy.redraw(self, 0)
-            render.blit(self.displayable_render, (self.x, self.y))
-
             # Kill enemies when they leave the screen
             self.alive = self.inside_bounds()
 
@@ -56,6 +54,9 @@ class EnemyShooterActor(ShooterActor):
             self.x = self.start_x
             self.y = self.start_y
             self.alive = True
+
+        renpy.redraw(self, 0)
+        render.blit(self.displayable_render, (self.x, self.y))
 
         return render
 

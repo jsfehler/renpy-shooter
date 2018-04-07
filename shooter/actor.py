@@ -31,6 +31,10 @@ class ShooterActor(renpy.Displayable):
 
     @property
     def width(self):
+        """Relies on the object already being rendered on screen.
+
+        Returns: int
+        """
         try:
             return self.displayable_render.get_size()[0]
         except AttributeError:
@@ -38,6 +42,10 @@ class ShooterActor(renpy.Displayable):
 
     @property
     def height(self):
+        """Relies on the object already being rendered on screen.
+
+        Returns: int
+        """
         try:
             return self.displayable_render.get_size()[1]
         except AttributeError:
